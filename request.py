@@ -1,14 +1,10 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import io
 import os
-
-
 import json
 import sys
-
 import pandas as pd
 import requests
-
 from pytrends import exceptions
 
 
@@ -22,7 +18,7 @@ client = vision.ImageAnnotatorClient()
 # The name of the image file to annotate
 file_name = os.path.join(
     os.path.dirname(__file__),
-    '/Users/Tiscareno/Downloads/AW-17New-3762.jpg')
+    '/Users/Tiscareno/Downloads/ww.jpg')
 
 # Loads the image into memory
 with io.open(file_name, 'rb') as image_file:
@@ -38,9 +34,6 @@ print('Labels:')
 for label in labels:
     print(label.description)
 x = [label.description for label in labels[:3]]
-
-
-
 
 
 if sys.version_info[0] == 2:  # Python 2
@@ -372,15 +365,8 @@ class TrendReq(object):
         suggestion_list = [i.get('title') for i in self.suggestions(keyword)]
         return suggestion_list[:num_results]
 YX = TrendReq()
-YX.build_payload(kw_list=x)
-interest_by_region_df = YX.interest_by_region()
+YX.build_payload(kw_list=x, geo='US-CA')
+interest_by_region_df = YX.interest_by_region('CITY')
 print(interest_by_region_df.head(50))
 
 
-
-# TEAMUS = TrendReq()
-# TEAMUS.build_payload(kw_list= ["Ripple", "Tronix", "ETH", "BitCoin"], timeframe='2017-11-04 2018-01-04')
-# interest_over_time_df = TEAMUS.interest_over_time()
-# print(interest_over_time_df.head(50))
-# interest_by_region_df = TEAMUS.interest_by_region()
-# print(interest_by_region_df.head(50))
