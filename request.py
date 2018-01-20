@@ -1,4 +1,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
+import io
+import os
+
 
 import json
 import sys
@@ -7,6 +10,38 @@ import pandas as pd
 import requests
 
 from pytrends import exceptions
+
+
+# Imports the Google Cloud client library
+from google.cloud import vision
+from google.cloud.vision import types
+
+# Instantiates a client
+client = vision.ImageAnnotatorClient()
+
+# The name of the image file to annotate
+file_name = os.path.join(
+    os.path.dirname(__file__),
+    '/Users/Tiscareno/Downloads/AW-17New-3762.jpg')
+
+# Loads the image into memory
+with io.open(file_name, 'rb') as image_file:
+    content = image_file.read()
+
+image = types.Image(content=content)
+
+# Performs label detection on the image file
+response = client.label_detection(image=image)
+labels = response.label_annotations
+
+print('Labels:')
+for label in labels:
+    print(label.description)
+x = [label.description for label in labels[:3]]
+
+
+
+
 
 if sys.version_info[0] == 2:  # Python 2
     from urllib import quote
@@ -170,18 +205,6 @@ class TrendReq(object):
             result_df[kw] = result_df[idx].astype('int')
             del result_df[idx]
 
-        if 'isPartial' in df:
-            # make other dataframe from isPartial key data
-            # split list columns into seperate ones, remove brackets and split on comma
-            df = df.fillna(False)
-            result_df2 = df['isPartial'].apply(lambda x: pd.Series(str(x).replace('[', '').replace(']', '').split(',')))
-            result_df2.columns = ['isPartial']
-            # concatenate the two dataframes
-            final = pd.concat([result_df, result_df2], axis=1)
-        else:
-            final = result_df
-            final['isPartial'] = False
-
         return final
 
     def interest_by_region(self, resolution='COUNTRY'):
@@ -344,9 +367,16 @@ class TrendReq(object):
             trim_chars=5
         )['default']['topics']
         return req_json
+
     def suggest(self, keyword, num_results=5):
         suggestion_list = [i.get('title') for i in self.suggestions(keyword)]
         return suggestion_list[:num_results]
+YX = TrendReq()
+YX.build_payload(kw_list=x)
+interest_by_region_df = YX.interest_by_region()
+print(interest_by_region_df.head(50))
+
+
 
 # TEAMUS = TrendReq()
 # TEAMUS.build_payload(kw_list= ["Ripple", "Tronix", "ETH", "BitCoin"], timeframe='2017-11-04 2018-01-04')
