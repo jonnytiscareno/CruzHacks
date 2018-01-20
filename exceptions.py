@@ -1,5 +1,5 @@
 class ResponseError(Exception):
-    """Something was wrong with the response from Google"""
+    """Somesing was wrong with the response from Google"""
 
     def __init__(self, message, response):
         super(Exception, self).__init__(message)
